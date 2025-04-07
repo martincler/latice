@@ -7,6 +7,7 @@ public class LaticeApplicationConsole {
 		System.out.println("-----------------------------------------------------");
 		System.out.println("-- Bienvenue dans notre magnifique jeu de latice ! --");
 		System.out.println("-- Développé par Laurent                            --");
+		System.out.println("-- et par Anais                                     --");
 		System.out.println("-----------------------------------------------------");
 	}
 
