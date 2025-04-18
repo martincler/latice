@@ -12,7 +12,7 @@ public class Pool {
 	}
 	
 	public boolean isEmpty() {
-		return tile.Pool.isEmpty();
+		return tilePool.isEmpty();
 	}
 	
 	public Tile drawnTile() {

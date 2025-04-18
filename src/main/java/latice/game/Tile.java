@@ -21,4 +21,5 @@ public class Tile {
 	public String toString() {
 		return color + " " + shape;
 	}
+	
 }
