@@ -19,7 +19,7 @@ public class Tile {
 	
 	@Override
 	public String toString() {
-		return color + " " + shape;
+		return color.colorize(shape.getSymbol());
 	}
 	
 }
