@@ -17,8 +17,5 @@ public enum Shape {
     public String getSymbol() {
         return symbol;
     }
-    @Override
-    public String toString() {
-        return symbol + " (" + name().charAt(0) + name().substring(1).toLowerCase() + ")";
-    }
+   
 }
