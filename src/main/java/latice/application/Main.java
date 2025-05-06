@@ -1,57 +1,39 @@
 package latice.application;
 
-import latice.console.Console;
-import latice.game.PlayerBag;
+import latice.game.Player;
 import latice.game.Pool;
 import latice.game.Tile;
 import latice.game.TileSet;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        // Test de TileSet
+        // Création des 72 tuiles
         TileSet tileSet = new TileSet();
-        Console.message("Tuiles générées dans TileSet :");
-        for (Tile tile : tileSet.getTiles()) {
-            System.out.println(tile);
-        }
-        Console.message("Nombre total de tuiles : " + tileSet.getTiles().size());
+        List<Tile> allTiles = tileSet.getTiles();
+        Collections.shuffle(allTiles); // mélange global
 
-        // Test de Pool
-        Pool pool = new Pool();
-        Console.message("\nTest de la pioche (Pool) :");
-        int count = 0;
-        while (!pool.isEmpty()) {
-            Tile drawn = pool.drawnTile();
-            Console.message("Tuile piochée : " + drawn);
-            count++;
-        }
-        Console.message("Nombre de tuiles piochées : " + count);
-        Console.message("Tuiles restantes : " + pool.remainingTiles());
-        
-        PlayerBag playerBag1 = new PlayerBag();
-        PlayerBag playerBag2 = new PlayerBag();
-        
-        Pool pool2 = new Pool();
-        
-        boolean toPlayer1 = true; 
-        while (!pool.isEmpty()) {
-        	Tile drawn = pool.drawnTile();
-        	if (toPlayer1) {
-        		playerBag1.addTile(drawn);
-        }	else {
-        	playerBag2.addTile(drawn);
-        }
-        	toPlayer1 = !toPlayer1;
+        // Répartition équitable des 72 tuiles en deux pools (36 chacune)
+        List<Tile> tilesForPlayer1 = new ArrayList<>(allTiles.subList(0, 36));
+        List<Tile> tilesForPlayer2 = new ArrayList<>(allTiles.subList(36, 72));
+
+        // Création des pools
+        Pool pool1 = new Pool(tilesForPlayer1);
+        Pool pool2 = new Pool(tilesForPlayer2);
+
+        // Création des joueurs avec leurs pools respectives
+        Player player1 = new Player("Joueur1", pool1);
+        Player player2 = new Player("Joueur2", pool2);
+
+        // Affichage des racks (mains)
+        player1.showRack();
+        System.out.println();
+        player2.showRack();
+        System.out.println();
+        // Affichage du nombre de tuiles restantes dans chaque pioche
+        System.out.println("Tuiles restantes dans la pioche de " + player1.getName() + " : " + pool1.remainingTiles());
+        System.out.println("Tuiles restantes dans la pioche de " + player2.getName() + " : " + pool2.remainingTiles());
     }
-        Console.message("Tuiles du joueur 1 : ");
-        for (Tile tile : playerBag1.getTiles()) {
-        	System.out.println(tile);
-        }
-        
-        Console.message("Tuiles du joueur 2 : ");
-        for (Tile tile : playerBag2.getTiles()) {
-        	System.out.println(tile);
-        }
-    }
-    
 }
