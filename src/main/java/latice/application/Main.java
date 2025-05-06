@@ -1,5 +1,6 @@
 package latice.application;
 
+import latice.game.Board;
 import latice.game.Player;
 import latice.game.Pool;
 import latice.game.Tile;
@@ -35,5 +36,11 @@ public class Main {
         // Affichage du nombre de tuiles restantes dans chaque pioche
         System.out.println("Tuiles restantes dans la pioche de " + player1.getName() + " : " + pool1.remainingTiles());
         System.out.println("Tuiles restantes dans la pioche de " + player2.getName() + " : " + pool2.remainingTiles());
+        //Affichage du plateau de jeu
+        System.out.println();
+        System.out.println("Tableau de Latice :");
+        System.out.println();
+        Board board = new Board();
+        board.displayBoard();
+        }
     }
-}
