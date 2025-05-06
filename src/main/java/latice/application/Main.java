@@ -38,7 +38,7 @@ public class Main {
         System.out.println("Tuiles restantes dans la pioche de " + player2.getName() + " : " + pool2.remainingTiles());
         //Affichage du plateau de jeu
         System.out.println();
-        System.out.println("Tableau de Latice :");
+        System.out.println("Plateau de Latice :");
         System.out.println();
         Board board = new Board();
         board.displayBoard();
