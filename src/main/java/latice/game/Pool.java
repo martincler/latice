@@ -1,8 +1,5 @@
 package latice.game;
 
-import java.util.LinkedList;
-import java.util.Queue;
-
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
