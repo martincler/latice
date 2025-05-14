@@ -1,5 +1,7 @@
 package latice.game;
 
+import latice.console.Console;
+
 public class Board {
     private final int SIZE = 9;
     private final BoardCell[][] grid;
@@ -50,9 +52,9 @@ public class Board {
                     symbol = cell.getSpecialType().getSymbol();
                 }
 
-                System.out.print(symbol + " ");
+                Console.message(symbol + " ");
             }
-            System.out.println();
+            Console.message("");
         }
     }
 
