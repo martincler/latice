@@ -1,7 +1,5 @@
 package latice.game;
 
-import latice.console.Console;
-
 public class Player {
     private final String name;
     private final Rack rack;
@@ -20,7 +18,7 @@ public class Player {
     }
 
     public void showRack() {
-    	Console.message("Main de " + name + " :");
+        System.out.println("Main de " + name + " :");
         rack.showRack();
     }
 }
