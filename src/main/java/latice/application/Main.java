@@ -27,12 +27,14 @@ public class Main {
         // Création des joueurs avec leurs pools respectives
         Player player1 = new Player("Joueur1", pool1);
         Player player2 = new Player("Joueur2", pool2);
+        
+        // Choisir un joueur aléatoire pour commencer
+        Player currentPlayer = Math.random() < 0.5 ? player1 : player2;
 
-        // Affichage des racks (mains)
-        player1.showRack();
-        System.out.println();
-        player2.showRack();
-        System.out.println();
+        // Afficher le joueur qui commence et son rack
+        System.out.println("Le joueur qui commence est : " + currentPlayer.getName());
+        currentPlayer.showRack();
+
         // Affichage du nombre de tuiles restantes dans chaque pioche
         System.out.println("Tuiles restantes dans la pioche de " + player1.getName() + " : " + pool1.remainingTiles());
         System.out.println("Tuiles restantes dans la pioche de " + player2.getName() + " : " + pool2.remainingTiles());

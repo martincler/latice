@@ -21,7 +21,8 @@ public class MainFX extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        // Génération des tuiles
+        
+    	    // Génération des tuiles
         TileSet tileSet = new TileSet();
         List<Tile> allTiles = new ArrayList<>(tileSet.getTiles());
         Collections.shuffle(allTiles);
@@ -36,6 +37,9 @@ public class MainFX extends Application {
         Player player1 = new Player("Joueur1", pool1);
         Player player2 = new Player("Joueur2", pool2);
 
+        // Choix aléatoire du joueur qui commence
+        Player currentPlayer = Math.random() < 0.5 ? player1 : player2;
+
         // Conteneur principal
         VBox root = new VBox(20);
         root.setAlignment(Pos.CENTER);
@@ -44,13 +48,11 @@ public class MainFX extends Application {
         GridPane board = createBoard();
         root.getChildren().add(board);
 
-        // Affichage des racks
+        // Affichage du rack uniquement du joueur choisi
         HBox racks = new HBox(50);
         racks.setAlignment(Pos.CENTER);
-        VBox rack1 = createRackDisplay("Joueur 1", player1.getRack());
-        VBox rack2 = createRackDisplay("Joueur 2", player2.getRack());
-        racks.getChildren().addAll(rack1, rack2);
-
+        VBox rackDisplay = createRackDisplay(currentPlayer.getName() + " à ton tour de jouer :", currentPlayer.getRack());
+        racks.getChildren().add(rackDisplay);
         root.getChildren().add(racks);
 
         Scene scene = new Scene(root, 1000, 500);
@@ -72,12 +74,11 @@ public class MainFX extends Application {
 
                 Label label = new Label();
 
-                // Centre (moonstone)
                 if (row == 4 && col == 4) {
                     label.setText("🌙");
                     label.setFont(Font.font("Arial", FontWeight.BOLD, 20));
                 }
-                // Sunstones
+
                 else if (isSunstone(row, col)) {
                     label.setText("☀");
                     label.setFont(Font.font("Arial", FontWeight.BOLD, 20));
@@ -112,10 +113,11 @@ public class MainFX extends Application {
         rackBox.setAlignment(Pos.CENTER);
 
         for (Tile tile : rack.getTiles()) {
-            Label tileLabel = new Label(getShapeSymbol(tile.getShape()));
+            String shapeSymbol = getShapeSymbol(tile.getShape());
+            Label tileLabel = new Label(shapeSymbol);
             tileLabel.setFont(Font.font("Segoe UI Emoji", 20));
             tileLabel.setTextFill(mapColorToFX(tile.getColor()));
-            tileLabel.setStyle("-fx-border-color: black; -fx-padding: 6; -fx-background-color: white;");
+            tileLabel.setStyle("-fx-border-color: black; -fx-padding: 4; -fx-background-color: white;");
             rackBox.getChildren().add(tileLabel);
         }
 
@@ -123,27 +125,29 @@ public class MainFX extends Application {
         return vbox;
     }
 
-    private String getShapeSymbol(Shape shape) {
-        return switch (shape) {
-            case FEATHER -> "🪶";      
-            case BIRD -> "🐦";
-            case TURTLE -> "🐢";
-            case FLOWER -> "🌸";
-            case GECKO -> "🦎";
-            case DOLPHIN -> "🐬";
-        };
-    }
 
     private Color mapColorToFX(latice.game.Color color) {
-        return switch (color) {
-            case YELLOW -> Color.GOLD;
-            case MAGENTA -> Color.MAGENTA;
-            case NAVY -> Color.NAVY;
-            case RED -> Color.RED;
-            case GREEN -> Color.GREEN;
-            case TEAL -> Color.TEAL;
-            default -> Color.BLACK;
-        };
+        switch (color) {
+            case YELLOW: return Color.YELLOW;
+            case MAGENTA: return Color.MAGENTA;
+            case NAVY: return Color.NAVY;
+            case RED: return Color.RED;
+            case GREEN: return Color.GREEN;
+            case TEAL: return Color.TEAL;
+            default: return Color.BLACK;
+        }
+    }
+
+    private String getShapeSymbol(Shape shape) {
+        switch (shape) {
+            case FEATHER: return "🪶";
+            case BIRD: return "🐦";
+            case TURTLE: return "🐢";
+            case FLOWER: return "🌸";
+            case GECKO: return "🦎";
+            case DOLPHIN: return "🐬";
+            default: return "?";
+        }
     }
 
     public static void main(String[] args) {
