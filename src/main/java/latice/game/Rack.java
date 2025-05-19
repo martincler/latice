@@ -20,6 +20,10 @@ public class Rack {
     public List<Tile> getTiles() {
         return tiles;
     }
+    
+    public void removeTile(Tile tile) {
+    	    tiles.remove(tile);
+    }
 
     public void showRack() {
         for (Tile tile : tiles) {

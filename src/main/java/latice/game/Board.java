@@ -1,58 +1,80 @@
 package latice.game;
 
 public class Board {
-    private final int SIZE = 9;
     private final BoardCell[][] grid;
 
     public Board() {
-        grid = new BoardCell[SIZE][SIZE];
-        initializeBoard();
-    }
-
-    private void initializeBoard() {
-        for (int row = 0; row < SIZE; row++) {
-            for (int col = 0; col < SIZE; col++) {
-                TileType type = TileType.STONE;
-                if (row == 4 && col == 4) {
-                    type = TileType.MOONSTONE;
-                } else if (isSunstonePosition(row, col)) {
-                    type = TileType.SUNSTONE;
+        grid = new BoardCell[9][9];
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 9; j++) {
+                SpecialType type = SpecialType.NORMAL;
+                if (i == 4 && j == 4) {
+                    type = SpecialType.MOONSTONE;
+                } else if ((i == 2 && j == 2) || (i == 2 && j == 6) || (i == 6 && j == 2) || (i == 6 && j == 6)) {
+                    type = SpecialType.SUNSTONE;
                 }
-                grid[row][col] = new BoardCell(type);
+                grid[i][j] = new BoardCell(type);
             }
         }
     }
 
-    private boolean isSunstonePosition(int row, int col) {
-        
-        int[][] positions = {
-            {0,0},{0,4},{0,8},
-            {4,0},{4,8},
-            {8,0},{8,4},{8,8},
-            {2,2},{2,6},{6,2},{6,6},
-            {1,1},{1,7},{7,1},{7,7}
-        };
-        for (int[] pos : positions) {
-            if (pos[0] == row && pos[1] == col) return true;
+    public BoardCell getCell(int row, int col) {
+        if (row >= 0 && row < 9 && col >= 0 && col < 9) {
+            return grid[row][col];
+        } else {
+            throw new IndexOutOfBoundsException("Coordonnées hors limites : (" + row + ", " + col + ")");
         }
-        return false;
     }
 
     public void displayBoard() {
-        for (int row = 0; row < SIZE; row++) {
-            for (int col = 0; col < SIZE; col++) {
-                BoardCell cell = grid[row][col];
-                String symbol;
+        String[][] symbols = new String[9][9];
 
-                if (!cell.isEmpty()) {
-                    symbol = ".";
-                } else {
-                    symbol = cell.getSpecialType().getSymbol();
-                }
-
-                System.out.print(symbol + " ");
+        // Remplir avec "." par défaut
+        for (int row = 0; row < 9; row++) {
+            for (int col = 0; col < 9; col++) {
+                symbols[row][col] = ".";
             }
-            System.out.println();
+        }
+
+        // Placer les sunstones ☀
+        int[][] sunstoneCoords = {
+            {0, 0}, {0, 4}, {0, 8},
+            {1, 1}, {1, 7},
+            {2, 2}, {2, 6},
+            {4, 0}, {4, 8},
+            {6, 2}, {6, 6},
+            {7, 1}, {7, 7},
+            {8, 0}, {8, 4}, {8, 8}
+        };
+
+        for (int[] pos : sunstoneCoords) {
+            symbols[pos[0]][pos[1]] = "☀";
+        }
+
+        // Placer la moonstone 🌙
+        symbols[4][4] = "🌙";
+
+        // Afficher le plateau
+        for (int row = 0; row < 9; row++) {
+            StringBuilder line = new StringBuilder();
+
+            // Indentation sur certaines lignes
+            if (row == 3 || row == 5) {
+                line.append("    ");
+            } else if (row == 1 || row == 2 || row == 6 || row == 7) {
+                line.append("  ");
+            }
+
+            for (int col = 0; col < 9; col++) {
+                BoardCell cell = getCell(row, col);
+                if (cell.getTile() != null) {
+                    line.append(cell.getTile().toString()).append(" ");
+                } else {
+                    line.append(symbols[row][col]).append(" ");
+                }
+            }
+
+            System.out.println(line.toString().trim());
         }
     }
 

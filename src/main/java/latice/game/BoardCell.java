@@ -1,27 +1,40 @@
 package latice.game;
 
 public class BoardCell {
-    private TileType tileType;
     private Tile tile;
+    private final SpecialType specialType;
 
-    public BoardCell(TileType tileType) {
-        this.tileType = tileType;
+    public BoardCell(SpecialType specialType) {
+        this.specialType = specialType;
         this.tile = null;
     }
 
-    public TileType getSpecialType() {
-        return tileType;
+    public boolean isEmpty() {
+        return tile == null;
     }
 
     public Tile getTile() {
         return tile;
+    }
+    
+    public void setTile(Tile tile) {
+    	    this.tile=tile;
     }
 
     public void placeTile(Tile tile) {
         this.tile = tile;
     }
 
-    public boolean isEmpty() {
-        return tile == null;
+    public SpecialType getSpecialType() {
+        return specialType;
+    }
+
+    @Override
+    public String toString() {
+        if (tile != null) {
+            return tile.toString();
+        } else {
+            return specialType.getSymbol();
+        }
     }
 }

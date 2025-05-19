@@ -3,6 +3,8 @@ package latice.application;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.geometry.Pos;
@@ -10,45 +12,35 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import latice.game.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+
+import java.util.*;
 
 public class MainFX extends Application {
 
     private static final int TILE_SIZE = 50;
     private static final int BOARD_SIZE = 9;
 
+    private Board boardModel = new Board();
+    private Map<Label, Tile> tileMap = new HashMap<>();
+
     @Override
     public void start(Stage primaryStage) {
-        
-    	    // Génération des tuiles
         TileSet tileSet = new TileSet();
         List<Tile> allTiles = new ArrayList<>(tileSet.getTiles());
         Collections.shuffle(allTiles);
 
-        // Création de deux pioches de 36 tuiles
-        List<Tile> tilesForP1 = new ArrayList<>(allTiles.subList(0, 36));
-        List<Tile> tilesForP2 = new ArrayList<>(allTiles.subList(36, 72));
-
-        Pool pool1 = new Pool(tilesForP1);
-        Pool pool2 = new Pool(tilesForP2);
-
+        Pool pool1 = new Pool(allTiles.subList(0, 36));
+        Pool pool2 = new Pool(allTiles.subList(36, 72));
         Player player1 = new Player("Joueur1", pool1);
         Player player2 = new Player("Joueur2", pool2);
-
-        // Choix aléatoire du joueur qui commence
         Player currentPlayer = Math.random() < 0.5 ? player1 : player2;
 
-        // Conteneur principal
         VBox root = new VBox(20);
         root.setAlignment(Pos.CENTER);
 
-        // Plateau
-        GridPane board = createBoard();
-        root.getChildren().add(board);
+        GridPane boardGrid = createBoardGrid();
+        root.getChildren().add(boardGrid);
 
-        // Affichage du rack uniquement du joueur choisi
         HBox racks = new HBox(50);
         racks.setAlignment(Pos.CENTER);
         VBox rackDisplay = createRackDisplay(currentPlayer.getName() + " à ton tour de jouer :", currentPlayer.getRack());
@@ -61,7 +53,7 @@ public class MainFX extends Application {
         primaryStage.show();
     }
 
-    private GridPane createBoard() {
+    private GridPane createBoardGrid() {
         GridPane grid = new GridPane();
         grid.setGridLinesVisible(true);
         grid.setAlignment(Pos.CENTER);
@@ -76,30 +68,45 @@ public class MainFX extends Application {
 
                 if (row == 4 && col == 4) {
                     label.setText("🌙");
-                    label.setFont(Font.font("Arial", FontWeight.BOLD, 20));
-                }
-
-                else if (isSunstone(row, col)) {
+                } else if (isSunstone(row, col)) {
                     label.setText("☀");
-                    label.setFont(Font.font("Arial", FontWeight.BOLD, 20));
                 }
 
                 cell.getChildren().add(label);
+
+                final int r = row;
+                final int c = col;
+
+                cell.setOnDragOver(event -> {
+                    if (event.getGestureSource() != cell && event.getDragboard().hasString()) {
+                        event.acceptTransferModes(TransferMode.MOVE);
+                    }
+                    event.consume();
+                });
+
+                cell.setOnDragDropped(event -> {
+                    if (event.getGestureSource() instanceof Label sourceLabel) {
+                        Tile draggedTile = tileMap.get(sourceLabel);
+                        if (draggedTile != null) {
+                            BoardCell boardCell = boardModel.getCell(r, c);
+                            if (boardCell.isEmpty()) {
+                                Label newLabel = createTileLabel(draggedTile);
+                                cell.getChildren().clear();
+                                cell.getChildren().add(newLabel);
+                                boardCell.placeTile(draggedTile);
+                                sourceLabel.setVisible(false);
+                                event.setDropCompleted(true);
+                            }
+                        }
+                    }
+                    event.consume();
+                });
+
                 grid.add(cell, col, row);
             }
         }
 
         return grid;
-    }
-
-    private boolean isSunstone(int row, int col) {
-        return (row == 0 && (col == 0 || col == 4 || col == 8)) ||
-               (row == 1 && (col == 1 || col == 7)) ||
-               (row == 2 && (col == 2 || col == 6)) ||
-               (row == 4 && (col == 0 || col == 8)) ||
-               (row == 6 && (col == 2 || col == 6)) ||
-               (row == 7 && (col == 1 || col == 7)) ||
-               (row == 8 && (col == 0 || col == 4 || col == 8));
     }
 
     private VBox createRackDisplay(String playerName, Rack rack) {
@@ -113,11 +120,16 @@ public class MainFX extends Application {
         rackBox.setAlignment(Pos.CENTER);
 
         for (Tile tile : rack.getTiles()) {
-            String shapeSymbol = getShapeSymbol(tile.getShape());
-            Label tileLabel = new Label(shapeSymbol);
-            tileLabel.setFont(Font.font("Segoe UI Emoji", 20));
-            tileLabel.setTextFill(mapColorToFX(tile.getColor()));
-            tileLabel.setStyle("-fx-border-color: black; -fx-padding: 4; -fx-background-color: white;");
+            Label tileLabel = createTileLabel(tile);
+
+            tileLabel.setOnDragDetected(event -> {
+                ClipboardContent content = new ClipboardContent();
+                content.putString("tile");
+                tileLabel.startDragAndDrop(TransferMode.MOVE).setContent(content);
+                event.consume();
+            });
+
+            tileMap.put(tileLabel, tile);
             rackBox.getChildren().add(tileLabel);
         }
 
@@ -125,32 +137,50 @@ public class MainFX extends Application {
         return vbox;
     }
 
+    private Label createTileLabel(Tile tile) {
+        Label label = new Label(getShapeSymbol(tile.getShape()));
+        label.setFont(Font.font("Segoe UI Emoji", 20));
+        label.setTextFill(mapColorToFX(tile.getColor()));
+        label.setStyle("-fx-border-color: black; -fx-padding: 4; -fx-background-color: white;");
+        return label;
+    }
 
     private Color mapColorToFX(latice.game.Color color) {
-        switch (color) {
-            case YELLOW: return Color.YELLOW;
-            case MAGENTA: return Color.MAGENTA;
-            case NAVY: return Color.NAVY;
-            case RED: return Color.RED;
-            case GREEN: return Color.GREEN;
-            case TEAL: return Color.TEAL;
-            default: return Color.BLACK;
-        }
+        return switch (color) {
+            case YELLOW -> Color.YELLOW;
+            case MAGENTA -> Color.MAGENTA;
+            case NAVY -> Color.NAVY;
+            case RED -> Color.RED;
+            case GREEN -> Color.GREEN;
+            case TEAL -> Color.TEAL;
+            default -> Color.BLACK;
+        };
     }
 
     private String getShapeSymbol(Shape shape) {
-        switch (shape) {
-            case FEATHER: return "🪶";
-            case BIRD: return "🐦";
-            case TURTLE: return "🐢";
-            case FLOWER: return "🌸";
-            case GECKO: return "🦎";
-            case DOLPHIN: return "🐬";
-            default: return "?";
-        }
+        return switch (shape) {
+            case FEATHER -> "🪶";
+            case BIRD -> "🐦";
+            case TURTLE -> "🐢";
+            case FLOWER -> "🌸";
+            case GECKO -> "🦎";
+            case DOLPHIN -> "🐬";
+            default -> "?";
+        };
+    }
+
+    private boolean isSunstone(int row, int col) {
+        return (row == 0 && (col == 0 || col == 4 || col == 8)) ||
+               (row == 1 && (col == 1 || col == 7)) ||
+               (row == 2 && (col == 2 || col == 6)) ||
+               (row == 4 && (col == 0 || col == 8)) ||
+               (row == 6 && (col == 2 || col == 6)) ||
+               (row == 7 && (col == 1 || col == 7)) ||
+               (row == 8 && (col == 0 || col == 4 || col == 8));
     }
 
     public static void main(String[] args) {
         launch(args);
     }
 }
+
