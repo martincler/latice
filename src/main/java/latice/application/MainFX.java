@@ -12,7 +12,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import latice.game.*;
-
 import java.util.*;
 
 public class MainFX extends Application {

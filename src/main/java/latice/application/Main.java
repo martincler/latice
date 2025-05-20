@@ -1,10 +1,6 @@
 package latice.application;
 
-import latice.game.Board;
-import latice.game.Player;
-import latice.game.Pool;
-import latice.game.Tile;
-import latice.game.TileSet;
+import latice.game.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,38 +25,81 @@ public class Main {
         Player player1 = new Player("Joueur1", pool1);
         Player player2 = new Player("Joueur2", pool2);
 
-        // Sélection aléatoire du joueur qui commence
-        Player currentPlayer = Math.random() < 0.5 ? player1 : player2;
-
-        // Création du plateau
+        // Plateau et arbitre
         Board board = new Board();
+        Arbitre arbitre = new Arbitre(board);
+
+        Scanner scanner = new Scanner(System.in);
+
+        // Choix du joueur aléatoire
+        Player currentPlayer = Math.random() < 0.5 ? player1 : player2;
+        Player otherPlayer = currentPlayer == player1 ? player2 : player1;
 
         System.out.println("Le joueur qui commence est : " + currentPlayer.getName());
 
-        // Affichage du rack et du plateau
-        currentPlayer.showRack();
-        System.out.println("\nPlateau de Latice :");
-        board.displayBoard();
+        boolean gameOver = false;
 
-        //Première tuile : obligatoire sur la moonstone (4,4)
-        @SuppressWarnings("resource")
-		Scanner scanner = new Scanner(System.in);
-        System.out.println("\nVous devez jouer votre première tuile sur la case centrale (ligne 4, colonne 4)");
+        while (!gameOver) {
+            System.out.println("\nTour de " + currentPlayer.getName());
 
-        System.out.print("Choisissez le numéro de la tuile à jouer (0 à 4) : ");
-        int tileIndex = scanner.nextInt();
-        Tile selectedTile = currentPlayer.getRack().getTiles().get(tileIndex);
+            // Affichage du plateau
+            board.displayBoard();
 
-        // Placement sur la moonstone
-        board.getCell(4, 4).setTile(selectedTile);
-        currentPlayer.getRack().removeTile(selectedTile);
+            // Affichage du rack
+            List<Tile> rackTiles = currentPlayer.getRack().getTiles();
+            if (rackTiles.isEmpty()) {
+                System.out.println(currentPlayer.getName() + " n’a plus de tuiles !");
+            } else {
+                System.out.println("\nVotre rack :");
+                for (int i = 0; i < rackTiles.size(); i++) {
+                    System.out.println((i + 1) + " - " + rackTiles.get(i));
+                }
 
-        System.out.println("\nTuile placée sur la case centrale (4, 4) !");
-        System.out.println("\nNouveau plateau :");
-        board.displayBoard();
+                boolean validMove = false;
+                while (!validMove) {
+                    System.out.print("\nNuméro de la tuile à jouer : ");
+                    int tileIndex = scanner.nextInt() - 1;
 
-        System.out.println("\nNouveau rack de " + currentPlayer.getName() + " :");
-        currentPlayer.showRack();
+                    if (tileIndex < 0 || tileIndex >= rackTiles.size()) {
+                        System.out.println("Numéro invalide.");
+                        continue;
+                    }
 
+                    Tile selectedTile = rackTiles.get(tileIndex);
+
+                    System.out.print("Colonne (0-8) : ");
+                    int col = scanner.nextInt();
+
+                    System.out.print("Ligne (0-8) : ");
+                    int row = scanner.nextInt();
+
+                    if (arbitre.isMoveValid(selectedTile, row, col)) {
+                        board.getCell(row, col).setTile(selectedTile);
+                        currentPlayer.getRack().removeTile(selectedTile);
+
+                        validMove = true;
+                    } else {
+                        System.out.println("Placement invalide. Réessayez.");
+                    }
+                }
+            }
+
+            // Vérifie fin de partie
+            boolean player1Empty = player1.getRack().getTiles().isEmpty();
+            boolean player2Empty = player2.getRack().getTiles().isEmpty();
+            if (player1Empty && player2Empty) {
+                gameOver = true;
+                System.out.println("\nFin de la partie !");
+                System.out.println("Plus de tuiles à jouer.");
+            } else {
+                // Tour suivant
+                Player temp = currentPlayer;
+                currentPlayer = otherPlayer;
+                otherPlayer = temp;
+            }
+        }
+
+        scanner.close();
     }
 }
+
