@@ -21,6 +21,7 @@ public class MainFX extends Application {
 
     private Board boardModel = new Board();
     private Map<Label, Tile> tileMap = new HashMap<>();
+    private Arbitre arbitre;
 
     @Override
     public void start(Stage primaryStage) {
@@ -33,6 +34,8 @@ public class MainFX extends Application {
         Player player1 = new Player("Joueur1", pool1);
         Player player2 = new Player("Joueur2", pool2);
         Player currentPlayer = Math.random() < 0.5 ? player1 : player2;
+
+        arbitre = new Arbitre(boardModel);
 
         VBox root = new VBox(20);
         root.setAlignment(Pos.CENTER);
@@ -61,14 +64,17 @@ public class MainFX extends Application {
             for (int col = 0; col < BOARD_SIZE; col++) {
                 StackPane cell = new StackPane();
                 cell.setPrefSize(TILE_SIZE, TILE_SIZE);
-                cell.setStyle("-fx-border-color: black; -fx-background-color: lightblue;");
+                cell.setStyle("-fx-border-color: black; -fx-background-color: #00008B;"); // Bleu foncé
 
                 Label label = new Label();
+                label.setFont(Font.font("Segoe UI Emoji", 20));
 
                 if (row == 4 && col == 4) {
                     label.setText("🌙");
+                    label.setTextFill(Color.SILVER); // Lune argentée
                 } else if (isSunstone(row, col)) {
                     label.setText("☀");
+                    label.setTextFill(Color.YELLOW); // Soleil jaune
                 }
 
                 cell.getChildren().add(label);
@@ -87,14 +93,19 @@ public class MainFX extends Application {
                     if (event.getGestureSource() instanceof Label sourceLabel) {
                         Tile draggedTile = tileMap.get(sourceLabel);
                         if (draggedTile != null) {
-                            BoardCell boardCell = boardModel.getCell(r, c);
-                            if (boardCell.isEmpty()) {
-                                Label newLabel = createTileLabel(draggedTile);
-                                cell.getChildren().clear();
-                                cell.getChildren().add(newLabel);
-                                boardCell.placeTile(draggedTile);
-                                sourceLabel.setVisible(false);
-                                event.setDropCompleted(true);
+                            if (arbitre.isMoveValid(draggedTile, r, c)) {
+                                BoardCell boardCell = boardModel.getCell(r, c);
+                                if (boardCell.isEmpty()) {
+                                    Label newLabel = createTileLabel(draggedTile);
+                                    cell.getChildren().clear();
+                                    cell.getChildren().add(newLabel);
+                                    boardCell.placeTile(draggedTile);
+                                    sourceLabel.setVisible(false);
+                                    event.setDropCompleted(true);
+                                }
+                            } else {
+                                System.out.println("Placement invalide !");
+                                event.setDropCompleted(false);
                             }
                         }
                     }
@@ -182,4 +193,5 @@ public class MainFX extends Application {
         launch(args);
     }
 }
+
 
