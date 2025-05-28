@@ -2,6 +2,7 @@ package latice.application;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.TransferMode;
@@ -23,7 +24,23 @@ public class MainFX extends Application {
     private Map<Label, Tile> tileMap = new HashMap<>();
     private Arbitre arbitre;
 
-    @Override
+    private Player player1;
+    private Player player2;
+    private Player currentPlayer;
+    private VBox rackDisplay;
+    private HBox racks;
+
+    // Pour l'affichage des scores
+    private VBox scoreBox;
+    private Label scorePlayer1Label;
+    private Label scorePlayer2Label;
+    private Label infoLabel;
+
+    private int scorePlayer1 = 0;
+    private int scorePlayer2 = 0;
+
+    @SuppressWarnings("unused")
+	@Override
     public void start(Stage primaryStage) {
         TileSet tileSet = new TileSet();
         List<Tile> allTiles = new ArrayList<>(tileSet.getTiles());
@@ -31,23 +48,72 @@ public class MainFX extends Application {
 
         Pool pool1 = new Pool(allTiles.subList(0, 36));
         Pool pool2 = new Pool(allTiles.subList(36, 72));
-        Player player1 = new Player("Joueur1", pool1);
-        Player player2 = new Player("Joueur2", pool2);
-        Player currentPlayer = Math.random() < 0.5 ? player1 : player2;
+        player1 = new Player("Paul", pool1);
+        player2 = new Player("Jordan", pool2);
+        currentPlayer = Math.random() < 0.5 ? player1 : player2;
 
         arbitre = new Arbitre(boardModel);
 
-        VBox root = new VBox(20);
-        root.setAlignment(Pos.CENTER);
+        BorderPane root = new BorderPane();
 
         GridPane boardGrid = createBoardGrid();
-        root.getChildren().add(boardGrid);
+        root.setCenter(boardGrid);
 
-        HBox racks = new HBox(50);
+        racks = new HBox(50);
         racks.setAlignment(Pos.CENTER);
-        VBox rackDisplay = createRackDisplay(currentPlayer.getName() + " à ton tour de jouer :", currentPlayer.getRack());
+        rackDisplay = createRackDisplay(currentPlayer.getName() + " à ton tour de jouer :", currentPlayer.getRack());
         racks.getChildren().add(rackDisplay);
-        root.getChildren().add(racks);
+        root.setBottom(racks);
+
+        // Zone score à droite
+        scoreBox = new VBox(10);
+        scoreBox.setAlignment(Pos.TOP_CENTER);
+
+        Label scoreTitle = new Label("Scores");
+        scoreTitle.setFont(Font.font("Arial", FontWeight.BOLD, 18));
+
+        scorePlayer1Label = new Label(player1.getName() + " : 0");
+        scorePlayer1Label.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+        scorePlayer2Label = new Label(player2.getName() + " : 0");
+        scorePlayer2Label.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+        
+        infoLabel = new Label(currentPlayer.getName() + ", à ton tour !");
+        infoLabel.setFont(Font.font("Arial", FontWeight.BOLD, 16));
+        infoLabel.setTextFill(Color.BLUE);
+
+        scoreBox.getChildren().addAll(scoreTitle, scorePlayer1Label, scorePlayer2Label, infoLabel);
+        root.setRight(scoreBox);
+        
+        // Boutons d'action
+        HBox buttonBox = new HBox(10);
+        buttonBox.setAlignment(Pos.CENTER);
+
+        Button endTurnButton = new Button("Fin du tour");
+        Button endGameButton = new Button("Fin de partie");
+
+        endTurnButton.setOnAction(e -> switchPlayer());
+
+        endGameButton.setOnAction(e -> {
+            Stage stage = (Stage) endGameButton.getScene().getWindow();
+            stage.close();
+        });
+
+        buttonBox.getChildren().addAll(endTurnButton, endGameButton);
+
+        scoreBox.getChildren().add(buttonBox);
+
+        
+        HBox centerBox = new HBox(20);
+        centerBox.setAlignment(Pos.CENTER);
+        centerBox.getChildren().addAll(boardGrid, scoreBox);
+
+        root.setCenter(centerBox);
+
+        racks = new HBox(50);
+        racks.setAlignment(Pos.CENTER);
+        rackDisplay = createRackDisplay(currentPlayer.getName() + " à ton tour de jouer :", currentPlayer.getRack());
+        racks.getChildren().add(rackDisplay);
+        root.setBottom(racks);
 
         Scene scene = new Scene(root, 1000, 500);
         primaryStage.setTitle("Latice - JavaFX");
@@ -64,17 +130,17 @@ public class MainFX extends Application {
             for (int col = 0; col < BOARD_SIZE; col++) {
                 StackPane cell = new StackPane();
                 cell.setPrefSize(TILE_SIZE, TILE_SIZE);
-                cell.setStyle("-fx-border-color: black; -fx-background-color: #00008B;"); // Bleu foncé
+                cell.setStyle("-fx-border-color: black; -fx-background-color: #00008B;");
 
                 Label label = new Label();
                 label.setFont(Font.font("Segoe UI Emoji", 20));
 
                 if (row == 4 && col == 4) {
                     label.setText("🌙");
-                    label.setTextFill(Color.SILVER); // Lune argentée
+                    label.setTextFill(Color.SILVER);
                 } else if (isSunstone(row, col)) {
                     label.setText("☀");
-                    label.setTextFill(Color.YELLOW); // Soleil jaune
+                    label.setTextFill(Color.YELLOW);
                 }
 
                 cell.getChildren().add(label);
@@ -102,6 +168,24 @@ public class MainFX extends Application {
                                     boardCell.placeTile(draggedTile);
                                     sourceLabel.setVisible(false);
                                     event.setDropCompleted(true);
+
+                                    // Retirer la tuile jouée du rack
+                                    currentPlayer.getRack().removeTile(draggedTile);
+
+                                    // Calculer les points pour ce placement
+                                    int points = calculerPointsPlacement(draggedTile, r, c);
+                                    ajouterPointsAuJoueur(currentPlayer, points);
+
+                                    // Ajouter une nouvelle tuile si possible
+                                    Tile newTile = currentPlayer.getPool().drawTile();
+                                    if (newTile != null) {
+                                        currentPlayer.getRack().getTiles().add(newTile);
+                                    }
+
+                                    // Vérifier fin de partie
+                                    if (finDePartie()) {
+                                        afficherVainqueur();
+                                    }
                                 }
                             } else {
                                 System.out.println("Placement invalide !");
@@ -119,12 +203,89 @@ public class MainFX extends Application {
         return grid;
     }
 
+    private int calculerPointsPlacement(Tile tile, int row, int col) {
+        // Récupérer les cellules adjacentes
+        List<BoardCell> adjacents = new ArrayList<>();
+        if (row > 0) adjacents.add(boardModel.getCell(row - 1, col));
+        if (row < BOARD_SIZE - 1) adjacents.add(boardModel.getCell(row + 1, col));
+        if (col > 0) adjacents.add(boardModel.getCell(row, col - 1));
+        if (col < BOARD_SIZE - 1) adjacents.add(boardModel.getCell(row, col + 1));
+
+        // Comptage des tuiles adjacentes compatibles (même forme ou couleur)
+        int adjacentCompatibleCount = 0;
+        Set<BoardCell> countedCells = new HashSet<>();
+
+        for (BoardCell cell : adjacents) {
+            if (!cell.isEmpty()) {
+                Tile t = cell.getTile();
+                if (t.getColor() == tile.getColor() || t.getShape() == tile.getShape()) {
+                    adjacentCompatibleCount++;
+                    countedCells.add(cell);
+                }
+            }
+        }
+
+        // Points = nombre de tuiles compatibles adjacentes
+        int points = adjacentCompatibleCount;
+
+        if (adjacentCompatibleCount > 1) {
+            points = adjacentCompatibleCount;
+        }
+
+        // Bonus sunstone +1 si la tuile est posée sur une sunstone
+        if (isSunstone(row, col)) {
+            points += 1;
+        }
+
+        System.out.println(currentPlayer.getName() + " marque " + points + " point(s) !");
+        return points;
+    }
+
+    private void ajouterPointsAuJoueur(Player player, int points) {
+        if (player == player1) {
+            scorePlayer1 += points;
+            scorePlayer1Label.setText(player1.getName() + " : " + scorePlayer1);
+        } else if (player == player2) {
+            scorePlayer2 += points;
+            scorePlayer2Label.setText(player2.getName() + " : " + scorePlayer2);
+        }
+    }
+
+    private boolean finDePartie() {
+        // Partie finie si les 2 racks sont vides
+        boolean racksVides = player1.getRack().getTiles().isEmpty() && player2.getRack().getTiles().isEmpty();
+        boolean poolsVides = player1.getPool().isEmpty() && player2.getPool().isEmpty();
+        return racksVides && poolsVides;
+    }
+
+    private void afficherVainqueur() {
+        String gagnant;
+        if (scorePlayer1 > scorePlayer2) {
+            gagnant = player1.getName();
+        } else if (scorePlayer2 > scorePlayer1) {
+            gagnant = player2.getName();
+        } else {
+            gagnant = "Égalité";
+        }
+        infoLabel.setText("Partie terminée ! Vainqueur : " + gagnant);
+        infoLabel.setTextFill(Color.RED);
+        racks.setDisable(true);
+    }
+
+    private void switchPlayer() {
+        currentPlayer = (currentPlayer == player1) ? player2 : player1;
+
+        racks.getChildren().clear();
+        rackDisplay = createRackDisplay(currentPlayer.getName() + " à ton tour de jouer :", currentPlayer.getRack());
+        racks.getChildren().add(rackDisplay);
+
+        infoLabel.setText(currentPlayer.getName() + ", à ton tour !");
+        infoLabel.setTextFill(Color.BLUE);
+    }
+
     private VBox createRackDisplay(String playerName, Rack rack) {
         VBox vbox = new VBox(5);
         vbox.setAlignment(Pos.CENTER);
-
-        Label nameLabel = new Label(playerName);
-        nameLabel.setFont(Font.font("Arial", FontWeight.BOLD, 14));
 
         HBox rackBox = new HBox(5);
         rackBox.setAlignment(Pos.CENTER);
@@ -143,7 +304,7 @@ public class MainFX extends Application {
             rackBox.getChildren().add(tileLabel);
         }
 
-        vbox.getChildren().addAll(nameLabel, rackBox);
+        vbox.getChildren().addAll(rackBox);
         return vbox;
     }
 
@@ -193,5 +354,3 @@ public class MainFX extends Application {
         launch(args);
     }
 }
-
-
