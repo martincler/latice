@@ -38,6 +38,8 @@ public class MainFX extends Application {
 
     private int scorePlayer1 = 0;
     private int scorePlayer2 = 0;
+    private boolean tourjoue= false;
+
 
     @SuppressWarnings("unused")
 	@Override
@@ -158,7 +160,7 @@ public class MainFX extends Application {
                 cell.setOnDragDropped(event -> {
                     if (event.getGestureSource() instanceof Label sourceLabel) {
                         Tile draggedTile = tileMap.get(sourceLabel);
-                        if (draggedTile != null) {
+                        if (draggedTile != null && !tourjoue) {
                             if (arbitre.isMoveValid(draggedTile, r, c)) {
                                 BoardCell boardCell = boardModel.getCell(r, c);
                                 if (boardCell.isEmpty()) {
@@ -181,6 +183,8 @@ public class MainFX extends Application {
                                     if (newTile != null) {
                                         currentPlayer.getRack().getTiles().add(newTile);
                                     }
+                                    
+                                    tourjoue = true;
 
                                     // Vérifier fin de partie
                                     if (finDePartie()) {
@@ -274,6 +278,7 @@ public class MainFX extends Application {
 
     private void switchPlayer() {
         currentPlayer = (currentPlayer == player1) ? player2 : player1;
+        tourjoue = false;
 
         racks.getChildren().clear();
         rackDisplay = createRackDisplay(currentPlayer.getName() + " à ton tour de jouer :", currentPlayer.getRack());
