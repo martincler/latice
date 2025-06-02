@@ -17,8 +17,8 @@ import java.util.*;
 
 public class MainFX extends Application {
 
-    private static final int TILE_SIZE = 50;
-    private static final int BOARD_SIZE = 9;
+    private static final Integer TILE_SIZE = 50;
+    private static final Integer BOARD_SIZE = 9;
 
     private Board boardModel = new Board();
     private Map<Label, Tile> tileMap = new HashMap<>();
@@ -36,9 +36,9 @@ public class MainFX extends Application {
     private Label scorePlayer2Label;
     private Label infoLabel;
 
-    private int scorePlayer1 = 0;
-    private int scorePlayer2 = 0;
-    private boolean tourjoue= false;
+    private Integer scorePlayer1 = 0;
+    private Integer scorePlayer2 = 0;
+    private Boolean tourjoue= false;
 
 
     @SuppressWarnings("unused")
@@ -128,8 +128,8 @@ public class MainFX extends Application {
         grid.setGridLinesVisible(true);
         grid.setAlignment(Pos.CENTER);
 
-        for (int row = 0; row < BOARD_SIZE; row++) {
-            for (int col = 0; col < BOARD_SIZE; col++) {
+        for (Integer row = 0; row < BOARD_SIZE; row++) {
+            for (Integer col = 0; col < BOARD_SIZE; col++) {
                 StackPane cell = new StackPane();
                 cell.setPrefSize(TILE_SIZE, TILE_SIZE);
                 cell.setStyle("-fx-border-color: black; -fx-background-color: #00008B;");
@@ -147,8 +147,8 @@ public class MainFX extends Application {
 
                 cell.getChildren().add(label);
 
-                final int r = row;
-                final int c = col;
+                final Integer r = row;
+                final Integer c = col;
 
                 cell.setOnDragOver(event -> {
                     if (event.getGestureSource() != cell && event.getDragboard().hasString()) {
@@ -175,7 +175,7 @@ public class MainFX extends Application {
                                     currentPlayer.getRack().removeTile(draggedTile);
 
                                     // Calculer les points pour ce placement
-                                    int points = calculerPointsPlacement(draggedTile, r, c);
+                                    Integer points = calculerPointsPlacement(draggedTile, r, c);
                                     ajouterPointsAuJoueur(currentPlayer, points);
 
                                     // Ajouter une nouvelle tuile si possible
@@ -207,7 +207,7 @@ public class MainFX extends Application {
         return grid;
     }
 
-    private int calculerPointsPlacement(Tile tile, int row, int col) {
+    private Integer calculerPointsPlacement(Tile tile, Integer row, Integer col) {
         // Récupérer les cellules adjacentes
         List<BoardCell> adjacents = new ArrayList<>();
         if (row > 0) adjacents.add(boardModel.getCell(row - 1, col));
@@ -216,7 +216,7 @@ public class MainFX extends Application {
         if (col < BOARD_SIZE - 1) adjacents.add(boardModel.getCell(row, col + 1));
 
         // Comptage des tuiles adjacentes compatibles (même forme ou couleur)
-        int adjacentCompatibleCount = 0;
+        Integer adjacentCompatibleCount = 0;
         Set<BoardCell> countedCells = new HashSet<>();
 
         for (BoardCell cell : adjacents) {
@@ -230,7 +230,7 @@ public class MainFX extends Application {
         }
 
         // Points = nombre de tuiles compatibles adjacentes
-        int points = adjacentCompatibleCount;
+        Integer points = adjacentCompatibleCount;
 
         if (adjacentCompatibleCount > 1) {
             points = adjacentCompatibleCount;
@@ -245,7 +245,7 @@ public class MainFX extends Application {
         return points;
     }
 
-    private void ajouterPointsAuJoueur(Player player, int points) {
+    private void ajouterPointsAuJoueur(Player player, Integer points) {
         if (player == player1) {
             scorePlayer1 += points;
             scorePlayer1Label.setText(player1.getName() + " : " + scorePlayer1);
@@ -255,10 +255,10 @@ public class MainFX extends Application {
         }
     }
 
-    private boolean finDePartie() {
+    private Boolean finDePartie() {
         // Partie finie si les 2 racks sont vides
-        boolean racksVides = player1.getRack().getTiles().isEmpty() && player2.getRack().getTiles().isEmpty();
-        boolean poolsVides = player1.getPool().isEmpty() && player2.getPool().isEmpty();
+        Boolean racksVides = player1.getRack().getTiles().isEmpty() && player2.getRack().getTiles().isEmpty();
+        Boolean poolsVides = player1.getPool().isEmpty() && player2.getPool().isEmpty();
         return racksVides && poolsVides;
     }
 
@@ -345,7 +345,7 @@ public class MainFX extends Application {
         };
     }
 
-    private boolean isSunstone(int row, int col) {
+    private Boolean isSunstone(Integer row, Integer col) {
         return (row == 0 && (col == 0 || col == 4 || col == 8)) ||
                (row == 1 && (col == 1 || col == 7)) ||
                (row == 2 && (col == 2 || col == 6)) ||
