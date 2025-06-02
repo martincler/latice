@@ -2,14 +2,14 @@ package latice.game;
 
 public class Arbitre {
     private final Board board;
-    private boolean isFirstMoveDone;
+    private Boolean isFirstMoveDone;
 
     public Arbitre(Board board) {
         this.board = board;
         this.isFirstMoveDone = false;
     }
 
-    public boolean isMoveValid(Tile tile, int row, int col) {
+    public Boolean isMoveValid(Tile tile, Integer row, Integer col) {
         // Vérifie que la case est vide
         BoardCell cell = board.getCell(row, col);
         if (cell.getTile() != null) {
@@ -27,19 +27,19 @@ public class Arbitre {
         }
 
         // Vérifie les voisins
-        boolean hasAdjacent = false;
-        boolean hasMatchingNeighbor = false;
+        Boolean hasAdjacent = false;
+        Boolean hasMatchingNeighbor = false;
 
-        int[][] directions = {
+        Integer[][] directions = {
             {-1, 0}, // haut
             {1, 0},  // bas
             {0, -1}, // gauche
             {0, 1}   // droite
         };
 
-        for (int[] dir : directions) {
-            int newRow = row + dir[0];
-            int newCol = col + dir[1];
+        for (Integer[] dir : directions) {
+            Integer newRow = row + dir[0];
+            Integer newCol = col + dir[1];
 
             if (isInBounds(newRow, newCol)) {
                 Tile neighbor = board.getCell(newRow, newCol).getTile();
@@ -56,7 +56,7 @@ public class Arbitre {
         return hasAdjacent && hasMatchingNeighbor;
     }
 
-    private boolean isInBounds(int row, int col) {
+    private Boolean isInBounds(Integer row, Integer col) {
         return row >= 0 && row < 9 && col >= 0 && col < 9;
     }
 }

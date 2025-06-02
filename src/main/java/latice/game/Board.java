@@ -2,23 +2,24 @@ package latice.game;
 
 public class Board {
     private final BoardCell[][] grid;
-
+    
+    // parcourir le tableau en 2d
     public Board() {
         grid = new BoardCell[9][9];
-        for (int i = 0; i < 9; i++) {
-            for (int j = 0; j < 9; j++) {
+        for (Integer iterateRow = 0; iterateRow < 9; iterateRow++) {
+            for (Integer iterateColumn = 0; iterateColumn < 9; iterateColumn++) {
                 SpecialType type = SpecialType.NORMAL;
-                if (i == 4 && j == 4) {
+                if (iterateRow == 4 && iterateColumn == 4) {
                     type = SpecialType.MOONSTONE;
-                } else if ((i == 2 && j == 2) || (i == 2 && j == 6) || (i == 6 && j == 2) || (i == 6 && j == 6)) {
+                } else if ((iterateRow == 2 && iterateColumn == 2) || (iterateRow == 2 && iterateColumn == 6) || (iterateRow == 6 && iterateColumn == 2) || (iterateRow == 6 && iterateColumn == 6)) {
                     type = SpecialType.SUNSTONE;
                 }
-                grid[i][j] = new BoardCell(type);
+                grid[iterateRow][iterateColumn] = new BoardCell(type);
             }
         }
     }
-
-    public BoardCell getCell(int row, int col) {
+    
+    public BoardCell getCell(Integer row, Integer col) {
         if (row >= 0 && row < 9 && col >= 0 && col < 9) {
             return grid[row][col];
         } else {
@@ -30,14 +31,14 @@ public class Board {
         String[][] symbols = new String[9][9];
 
         // Remplir avec "." par défaut
-        for (int row = 0; row < 9; row++) {
-            for (int col = 0; col < 9; col++) {
+        for (Integer row = 0; row < 9; row++) {
+            for (Integer col = 0; col < 9; col++) {
                 symbols[row][col] = ".";
             }
         }
 
         // Placer les sunstones ☀
-        int[][] sunstoneCoords = {
+        Integer[][] sunstoneCoords = {
             {0, 0}, {0, 4}, {0, 8},
             {1, 1}, {1, 7},
             {2, 2}, {2, 6},
@@ -47,7 +48,7 @@ public class Board {
             {8, 0}, {8, 4}, {8, 8}
         };
 
-        for (int[] pos : sunstoneCoords) {
+        for (Integer[] pos : sunstoneCoords) {
             symbols[pos[0]][pos[1]] = "☀";
         }
 
@@ -55,7 +56,7 @@ public class Board {
         symbols[4][4] = "🌙";
 
         // Afficher le plateau
-        for (int row = 0; row < 9; row++) {
+        for (Integer row = 0; row < 9; row++) {
             StringBuilder line = new StringBuilder();
 
             // Indentation sur certaines lignes
@@ -65,12 +66,12 @@ public class Board {
                 line.append("  ");
             }
 
-            for (int col = 0; col < 9; col++) {
-                BoardCell cell = getCell(row, col);
+            for (Integer iterate_Column = 0; iterate_Column < 9; iterate_Column++) {
+                BoardCell cell = getCell(row, iterate_Column);
                 if (cell.getTile() != null) {
                     line.append(cell.getTile().toString()).append(" ");
                 } else {
-                    line.append(symbols[row][col]).append(" ");
+                    line.append(symbols[row][iterate_Column]).append(" ");
                 }
             }
 

@@ -12,7 +12,7 @@ public class Rack {
     }
 
     private void drawInitialTiles(Pool pool) {
-        for (int i = 0; i < 5 && !pool.isEmpty(); i++) {
+        for (Integer drawCount = 0; drawCount < 5 && !pool.isEmpty(); drawCount++) {
             tiles.add(pool.drawTile());
         }
     }
