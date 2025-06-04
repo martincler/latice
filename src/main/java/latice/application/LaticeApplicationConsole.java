@@ -8,7 +8,7 @@ public class LaticeApplicationConsole {
 		// TODO Auto-generated method stub
 		System.out.println("-----------------------------------------------------");
 		System.out.println("-- Bienvenue dans notre magnifique jeu de latice ! --");
-		System.out.println("-- Développé par Jordan, Paul, Léo et Martin       --");
+		System.out.println("-- Développé par Jordan, Paul                      --");
 		System.out.println("-----------------------------------------------------");
 	}
 
