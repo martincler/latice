@@ -4,7 +4,8 @@ import latice.game.*;
 import java.util.*;
 
 public class Main {
-
+	static Integer MAX_TABLE_SIZE = 9;
+	
     public static void main(String[] args) {
 
         // Création des 72 tuiles
@@ -51,19 +52,21 @@ public class Main {
 
             // Affichage du rack
             List<Tile> rackTiles = currentPlayer.getRack().getTiles();
-
+            
+            // message si le joueur n'a plus de tuiles 
             if (rackTiles.isEmpty()) {
                 System.out.println(currentPlayer.getName() + " n’a plus de tuiles !");
+           //sinon on lui affiche son rack
             } else {
                 System.out.println("\nVotre rack :");
-                for (int i = 0; i < rackTiles.size(); i++) {
-                    System.out.println((i + 1) + " - " + rackTiles.get(i));
+                for (Integer iterateTileInRack = 0; iterateTileInRack < rackTiles.size(); iterateTileInRack++) {
+                    System.out.println((iterateTileInRack + 1) + " - " + rackTiles.get(iterateTileInRack));
                 }
 
                 Boolean validMove = false;
                 while (!validMove) {
                     System.out.print("\nNuméro de la tuile à jouer : ");
-                    int tileIndex = scanner.nextInt() - 1;
+                    Integer tileIndex = scanner.nextInt() - 1;
 
                     if (tileIndex < 0 || tileIndex >= rackTiles.size()) {
                         System.out.println("Numéro invalide.");
@@ -73,10 +76,10 @@ public class Main {
                     Tile selectedTile = rackTiles.get(tileIndex);
 
                     System.out.print("Colonne (0-8) : ");
-                    int col = scanner.nextInt();
+                    Integer col = scanner.nextInt();
 
                     System.out.print("Ligne (0-8) : ");
-                    int row = scanner.nextInt();
+                    Integer row = scanner.nextInt();
 
                     if (row < 0 || row > 8 || col < 0 || col > 8) {
                         System.out.println("Coordonnées hors limites.");
@@ -88,7 +91,7 @@ public class Main {
                         currentPlayer.getRack().removeTile(selectedTile);
 
                         // Calcul des points pour le coup joué
-                        int pointsGagnes = calculateScore(board, row, col);
+                        Integer pointsGagnes = calculateScore(board, row, col);
 
                         // Bonus +1 point si case sunstone
                         if (board.getCell(row, col).getSpecialType() == SpecialType.SUNSTONE) {
@@ -117,8 +120,8 @@ public class Main {
             }
 
             // Vérification fin de partie : si les deux racks sont vides
-            boolean player1Empty = player1.getRack().getTiles().isEmpty();
-            boolean player2Empty = player2.getRack().getTiles().isEmpty();
+            Boolean player1Empty = player1.getRack().getTiles().isEmpty();
+            Boolean player2Empty = player2.getRack().getTiles().isEmpty();
             if (player1Empty && player2Empty) {
                 gameOver = true;
                 System.out.println("\nFin de la partie !");
@@ -154,17 +157,18 @@ public class Main {
         }
     }
 
-    private static int calculateScore(Board board, int row, int col) {
-        int score = 0;
+    public static int calculateScore(Board board, Integer row, Integer col) {
+        Integer score = 0;
         Tile placedTile = board.getCell(row, col).getTile();
 
-        int[][] directions = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
+        Integer[][] directions = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
 
-        for (int[] dir : directions) {
-            int adjRow = row + dir[0];
-            int adjCol = col + dir[1];
+        for (Integer[] dir : directions) {
+            Integer adjRow = row + dir[0];
+            Integer adjCol = col + dir[1];
 
-            if (adjRow >= 0 && adjRow < 9 && adjCol >= 0 && adjCol < 9) {
+            
+			if (adjRow >= 0 && adjRow < MAX_TABLE_SIZE && adjCol >= 0 && adjCol < MAX_TABLE_SIZE) {
                 Tile adjTile = board.getCell(adjRow, adjCol).getTile();
                 if (adjTile != null) {
                     if (adjTile.getColor() == placedTile.getColor() || adjTile.getShape() == placedTile.getShape()) {
