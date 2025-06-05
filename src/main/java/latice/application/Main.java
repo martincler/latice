@@ -6,6 +6,7 @@ import java.util.*;
 public class Main {
 
     public static void main(String[] args) {
+
         // Création des 72 tuiles
         TileSet tileSet = new TileSet();
         List<Tile> allTiles = tileSet.getTiles();
@@ -40,7 +41,7 @@ public class Main {
 
         System.out.println("Le joueur qui commence est : " + currentPlayer.getName());
 
-        boolean gameOver = false;
+        Boolean gameOver = false;
 
         while (!gameOver) {
             System.out.println("\nTour de " + currentPlayer.getName());
@@ -59,7 +60,7 @@ public class Main {
                     System.out.println((i + 1) + " - " + rackTiles.get(i));
                 }
 
-                boolean validMove = false;
+                Boolean validMove = false;
                 while (!validMove) {
                     System.out.print("\nNuméro de la tuile à jouer : ");
                     int tileIndex = scanner.nextInt() - 1;

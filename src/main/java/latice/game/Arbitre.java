@@ -3,7 +3,7 @@ package latice.game;
 public class Arbitre {
     private final Board board;
     private Boolean isFirstMoveDone;
-
+    private Integer MAX_TABLE_SIZE = 9;
     public Arbitre(Board board) {
         this.board = board;
         this.isFirstMoveDone = false;
@@ -18,7 +18,8 @@ public class Arbitre {
 
         if (!isFirstMoveDone) {
             // La première tuile doit être sur la moonstone (4, 4)
-            if (row == 4 && col == 4) {
+            
+			if (row == 4 && col == 4) {
                 isFirstMoveDone = true;
                 return true;
             } else {
@@ -53,10 +54,11 @@ public class Arbitre {
             }
         }
 
-        return hasAdjacent && hasMatchingNeighbor;
+        return hasMatchingNeighbor;
     }
 
     private Boolean isInBounds(Integer row, Integer col) {
-        return row >= 0 && row < 9 && col >= 0 && col < 9;
+        
+		return row >= 0 && row < MAX_TABLE_SIZE && col >= 0 && col < MAX_TABLE_SIZE;
     }
 }
