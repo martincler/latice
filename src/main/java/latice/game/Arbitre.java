@@ -12,11 +12,9 @@ public class Arbitre {
     public Boolean isMoveValid(Tile tile, Integer row, Integer col) {
         // Vérifie que la case est vide
         BoardCell cell = board.getCell(row, col);
-        if (cell.getTile() != null) {
-            return false;
-        }
+        verifyEmptyCell(cell);
 
-        if (!isFirstMoveDone) {
+        if (Boolean.FALSE.equals(isFirstMoveDone)) {
             // La première tuile doit être sur la moonstone (4, 4)
             
 			if (row == 4 && col == 4) {
@@ -56,6 +54,11 @@ public class Arbitre {
 
         return hasMatchingNeighbor;
     }
+
+    private Boolean verifyEmptyCell(BoardCell cell) {
+        return cell.getTile() == null;
+    }
+
 
     private Boolean isInBounds(Integer row, Integer col) {
         

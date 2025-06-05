@@ -24,14 +24,10 @@ public class Board {
 
     public void displayBoard() {
         String[][] symbols = new String[MAX_TABLE_SIZE][MAX_TABLE_SIZE];
-
-        fillWithDot(symbols);
-
-        placeSunStone(symbols);
-
-        // Placer la moonstone 🌙
-        symbols[4][4] = "🌙";
-
+        //Toutes les cases placer visuelemment 
+        fillWithDot(symbols);   //case normal
+        placeSunStone(symbols); //sunstone
+        placeMoonStone(symbols); //moonstone
         // Afficher le plateau
         for (Integer row = 0; row < MAX_TABLE_SIZE; row++) {
             StringBuilder line = new StringBuilder();
@@ -56,8 +52,15 @@ public class Board {
         }
     }
 
-
  // fonctions
+
+	private void placeMoonStone(String[][] symbols) {
+		// Placer la moonstone 🌙
+		symbols[4][4] = "🌙";
+	}
+
+
+
 	private void placeSunStone(String[][] symbols) {
 		// Placer les sunstones ☀
         Integer[][] sunstoneCoords = {
@@ -90,8 +93,8 @@ public class Board {
 		for (Integer iterateRow = 0; iterateRow < MAX_TABLE_SIZE; iterateRow++) {
             for (Integer iterateColumn = 0; iterateColumn < MAX_TABLE_SIZE; iterateColumn++) {
                 SpecialType type = SpecialType.NORMAL;
-                
-                if (iterateRow == 6 && iterateColumn == 6) {
+                // on défini les cases suivante comme étant spécial 
+                if (iterateRow == 4 && iterateColumn == 4) {
                     type = SpecialType.MOONSTONE;
                 
                 } else if ((iterateRow == 2 && iterateColumn == 2) || (iterateRow == 2 && iterateColumn == 6) || (iterateRow == 6 && iterateColumn == 2) || (iterateRow == 6 && iterateColumn == 6)) {
