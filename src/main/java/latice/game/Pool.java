@@ -17,11 +17,11 @@ public class Pool {
         return tilePool.poll();
     }
 
-    public boolean isEmpty() {
+    public Boolean isEmpty() {
         return tilePool.isEmpty();
     }
 
-    public int remainingTiles() {
+    public Integer remainingTiles() {
         return tilePool.size();
     }
 }

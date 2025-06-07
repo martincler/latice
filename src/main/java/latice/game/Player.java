@@ -15,7 +15,7 @@ public class Player {
         return name;
     }
 
-    public Rack getRack() {
+    public Rack getPlayerRack() {
         return rack;
     }
     
@@ -23,7 +23,7 @@ public class Player {
     	    return pool;
     }
 
-    public void showRack() {
+    public void showPlayerRack() {
         System.out.println("Main de " + name + " :");
         rack.showRack();
     }

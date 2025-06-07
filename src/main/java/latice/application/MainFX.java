@@ -63,7 +63,7 @@ public class MainFX extends Application {
 
         racks = new HBox(50);
         racks.setAlignment(Pos.CENTER);
-        rackDisplay = createRackDisplay(currentPlayer.getName() + " à ton tour de jouer :", currentPlayer.getRack());
+        rackDisplay = createRackDisplay(currentPlayer.getName() + " à ton tour de jouer :", currentPlayer.getPlayerRack());
         racks.getChildren().add(rackDisplay);
         root.setBottom(racks);
 
@@ -113,7 +113,7 @@ public class MainFX extends Application {
 
         racks = new HBox(50);
         racks.setAlignment(Pos.CENTER);
-        rackDisplay = createRackDisplay(currentPlayer.getName() + " à ton tour de jouer :", currentPlayer.getRack());
+        rackDisplay = createRackDisplay(currentPlayer.getName() + " à ton tour de jouer :", currentPlayer.getPlayerRack());
         racks.getChildren().add(rackDisplay);
         root.setBottom(racks);
 
@@ -162,7 +162,7 @@ public class MainFX extends Application {
                         Tile draggedTile = tileMap.get(sourceLabel);
                         if (draggedTile != null && !tourjoue) {
                             if (arbitre.isMoveValid(draggedTile, r, c)) {
-                                BoardCell boardCell = boardModel.getCell(r, c);
+                                BoardCell boardCell = boardModel.getCellPositionOnBoard(r, c);
                                 if (boardCell.isEmpty()) {
                                     Label newLabel = createTileLabel(draggedTile);
                                     cell.getChildren().clear();
@@ -172,7 +172,7 @@ public class MainFX extends Application {
                                     event.setDropCompleted(true);
 
                                     // Retirer la tuile jouée du rack
-                                    currentPlayer.getRack().removeTile(draggedTile);
+                                    currentPlayer.getPlayerRack().removeTile(draggedTile);
 
                                     // Calculer les points pour ce placement
                                     Integer points = calculerPointsPlacement(draggedTile, r, c);
@@ -181,7 +181,7 @@ public class MainFX extends Application {
                                     // Ajouter une nouvelle tuile si possible
                                     Tile newTile = currentPlayer.getPool().drawTile();
                                     if (newTile != null) {
-                                        currentPlayer.getRack().getTiles().add(newTile);
+                                        currentPlayer.getPlayerRack().getTilesFromPlayerRack().add(newTile);
                                     }
                                     
                                     tourjoue = true;
@@ -210,10 +210,10 @@ public class MainFX extends Application {
     private Integer calculerPointsPlacement(Tile tile, Integer row, Integer col) {
         // Récupérer les cellules adjacentes
         List<BoardCell> adjacents = new ArrayList<>();
-        if (row > 0) adjacents.add(boardModel.getCell(row - 1, col));
-        if (row < BOARD_SIZE - 1) adjacents.add(boardModel.getCell(row + 1, col));
-        if (col > 0) adjacents.add(boardModel.getCell(row, col - 1));
-        if (col < BOARD_SIZE - 1) adjacents.add(boardModel.getCell(row, col + 1));
+        if (row > 0) adjacents.add(boardModel.getCellPositionOnBoard(row - 1, col));
+        if (row < BOARD_SIZE - 1) adjacents.add(boardModel.getCellPositionOnBoard(row + 1, col));
+        if (col > 0) adjacents.add(boardModel.getCellPositionOnBoard(row, col - 1));
+        if (col < BOARD_SIZE - 1) adjacents.add(boardModel.getCellPositionOnBoard(row, col + 1));
 
         // Comptage des tuiles adjacentes compatibles (même forme ou couleur)
         Integer adjacentCompatibleCount = 0;
@@ -221,7 +221,7 @@ public class MainFX extends Application {
 
         for (BoardCell cell : adjacents) {
             if (!cell.isEmpty()) {
-                Tile t = cell.getTile();
+                Tile t = cell.getTileFromCell();
                 if (t.getColor() == tile.getColor() || t.getShape() == tile.getShape()) {
                     adjacentCompatibleCount++;
                     countedCells.add(cell);
@@ -257,7 +257,7 @@ public class MainFX extends Application {
 
     private Boolean finDePartie() {
         // Partie finie si les 2 racks sont vides
-        Boolean racksVides = player1.getRack().getTiles().isEmpty() && player2.getRack().getTiles().isEmpty();
+        Boolean racksVides = player1.getPlayerRack().getTilesFromPlayerRack().isEmpty() && player2.getPlayerRack().getTilesFromPlayerRack().isEmpty();
         Boolean poolsVides = player1.getPool().isEmpty() && player2.getPool().isEmpty();
         return racksVides && poolsVides;
     }
@@ -281,7 +281,7 @@ public class MainFX extends Application {
         tourjoue = false;
 
         racks.getChildren().clear();
-        rackDisplay = createRackDisplay(currentPlayer.getName() + " à ton tour de jouer :", currentPlayer.getRack());
+        rackDisplay = createRackDisplay(currentPlayer.getName() + " à ton tour de jouer :", currentPlayer.getPlayerRack());
         racks.getChildren().add(rackDisplay);
 
         infoLabel.setText(currentPlayer.getName() + ", à ton tour !");
@@ -295,7 +295,7 @@ public class MainFX extends Application {
         HBox rackBox = new HBox(5);
         rackBox.setAlignment(Pos.CENTER);
 
-        for (Tile tile : rack.getTiles()) {
+        for (Tile tile : rack.getTilesFromPlayerRack()) {
             Label tileLabel = createTileLabel(tile);
 
             tileLabel.setOnDragDetected(event -> {

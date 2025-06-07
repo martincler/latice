@@ -11,7 +11,7 @@ public class Arbitre {
 
     public Boolean isMoveValid(Tile tile, Integer row, Integer col) {
         // Vérifie que la case est vide
-        BoardCell cell = board.getCell(row, col);
+        BoardCell cell = board.getCellPositionOnBoard(row, col);
         verifyEmptyCell(cell);
 
         if (Boolean.FALSE.equals(isFirstMoveDone)) {
@@ -41,7 +41,7 @@ public class Arbitre {
             Integer newCol = col + dir[1];
 
             if (isInBounds(newRow, newCol)) {
-                Tile neighbor = board.getCell(newRow, newCol).getTile();
+                Tile neighbor = board.getCellPositionOnBoard(newRow, newCol).getTileFromCell();
                 if (neighbor != null) {
                     hasAdjacent = true;
                     if (neighbor.getColor() == tile.getColor() ||
@@ -56,7 +56,7 @@ public class Arbitre {
     }
 
     private Boolean verifyEmptyCell(BoardCell cell) {
-        return cell.getTile() == null;
+        return cell.getTileFromCell() == null;
     }
 
 

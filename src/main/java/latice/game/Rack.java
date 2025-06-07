@@ -17,7 +17,7 @@ public class Rack {
         }
     }
 
-    public List<Tile> getTiles() {
+    public List<Tile> getTilesFromPlayerRack() {
         return tiles;
     }
     

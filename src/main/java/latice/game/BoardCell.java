@@ -13,7 +13,7 @@ public class BoardCell {
         return tile == null;
     }
 
-    public Tile getTile() {
+    public Tile getTileFromCell() {
         return tile;
     }
     

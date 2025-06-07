@@ -10,7 +10,7 @@ public class PlayerBag {
 		tiles.add(tile);
 		
 	}
-	public List<Tile> getTiles() {
+	public List<Tile> getTilesFromPlayerBag() {
 		return tiles; 
 	}
 }

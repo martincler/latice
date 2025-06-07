@@ -14,7 +14,7 @@ public class Board {
 
 	
     
-    public BoardCell getCell(Integer row, Integer col) {
+    public BoardCell getCellPositionOnBoard(Integer row, Integer col) {
         if (row >= 0 && row < MAX_TABLE_SIZE && col >= 0 && col < MAX_TABLE_SIZE) {
             return grid[row][col];
         } else {
@@ -40,9 +40,9 @@ public class Board {
             }
 
             for (Integer iterate_Column = 0; iterate_Column < MAX_TABLE_SIZE; iterate_Column++) {
-                BoardCell cell = getCell(row, iterate_Column);
-                if (cell.getTile() != null) {
-                    line.append(cell.getTile().toString()).append(" ");
+                BoardCell cell = getCellPositionOnBoard(row, iterate_Column);
+                if (cell.getTileFromCell() != null) {
+                    line.append(cell.getTileFromCell().toString()).append(" ");
                 } else {
                     line.append(symbols[row][iterate_Column]).append(" ");
                 }

@@ -34,7 +34,7 @@ public class Main {
         scores.put(player1, 0);
         scores.put(player2, 0);
 
-        Scanner scanner = new Scanner(System.in);
+        
 
         // Choix du joueur aléatoire qui commence
         Player currentPlayer = Math.random() < 0.5 ? player1 : player2;
@@ -43,65 +43,68 @@ public class Main {
         System.out.println("Le joueur qui commence est : " + currentPlayer.getName());
 
         Boolean gameOver = false;
-
+        
+        Scanner scanner = new Scanner(System.in);
+        
         while (!gameOver) {
+        	// Affichage du joueur qui va jouer 
             System.out.println("\nTour de " + currentPlayer.getName());
 
             // Affichage du plateau
             board.displayBoard();
 
             // Affichage du rack
-            List<Tile> rackTiles = currentPlayer.getRack().getTiles();
+            List<Tile> playerRackTiles = currentPlayer.getPlayerRack().getTilesFromPlayerRack();
             
             // message si le joueur n'a plus de tuiles 
-            if (rackTiles.isEmpty()) {
+            if (playerRackTiles.isEmpty()) {
                 System.out.println(currentPlayer.getName() + " n’a plus de tuiles !");
            //sinon on lui affiche son rack
             } else {
                 System.out.println("\nVotre rack :");
-                for (Integer iterateTileInRack = 0; iterateTileInRack < rackTiles.size(); iterateTileInRack++) {
-                    System.out.println((iterateTileInRack + 1) + " - " + rackTiles.get(iterateTileInRack));
+                for (Integer iterateTileInRack = 0; iterateTileInRack < playerRackTiles.size(); iterateTileInRack++) {
+                    System.out.println((iterateTileInRack + 1) + " - " + playerRackTiles.get(iterateTileInRack));
                 }
 
                 Boolean validMove = false;
                 while (!validMove) {
-                    System.out.print("\nNuméro de la tuile à jouer : ");
-                    Integer tileIndex = scanner.nextInt() - 1;
+                    System.out.print("\nChoisissez le numéro de la tuile à jouer : ");
+                    Integer tileSelection = scanner.nextInt() - 1;
 
-                    if (tileIndex < 0 || tileIndex >= rackTiles.size()) {
+                    if (tileSelection < 0 || tileSelection >= playerRackTiles.size()) {
                         System.out.println("Numéro invalide.");
                         continue;
                     }
 
-                    Tile selectedTile = rackTiles.get(tileIndex);
-
+                    Tile selectedTile = playerRackTiles.get(tileSelection);
+                    // choix de lignes et colonnes
                     System.out.print("Colonne (0-8) : ");
-                    Integer col = scanner.nextInt();
+                    Integer colSelection = scanner.nextInt();
 
                     System.out.print("Ligne (0-8) : ");
-                    Integer row = scanner.nextInt();
+                    Integer rowSelection = scanner.nextInt();
 
-                    if (row < 0 || row > 8 || col < 0 || col > 8) {
+                    if (rowSelection < 0 || rowSelection > 8 || colSelection < 0 || colSelection > 8) {
                         System.out.println("Coordonnées hors limites.");
                         continue;
                     }
 
-                    if (arbitre.isMoveValid(selectedTile, row, col)) {
-                        board.getCell(row, col).setTile(selectedTile);
-                        currentPlayer.getRack().removeTile(selectedTile);
+                    if (arbitre.isMoveValid(selectedTile, rowSelection, colSelection)) {
+                        board.getCellPositionOnBoard(rowSelection, colSelection).setTile(selectedTile);
+                        currentPlayer.getPlayerRack().removeTile(selectedTile);
 
                         // Calcul des points pour le coup joué
-                        Integer pointsGagnes = calculateScore(board, row, col);
+                        Integer earnedPoint = calculateScore(board, rowSelection, colSelection);
 
                         // Bonus +1 point si case sunstone
-                        if (board.getCell(row, col).getSpecialType() == SpecialType.SUNSTONE) {
-                            pointsGagnes++;
+                        if (board.getCellPositionOnBoard(rowSelection, colSelection).getSpecialType() == SpecialType.SUNSTONE) {
+                            earnedPoint++;
                         }
 
                         // Ajout des points au score du joueur
-                        scores.put(currentPlayer, scores.get(currentPlayer) + pointsGagnes);
+                        scores.put(currentPlayer, scores.get(currentPlayer) + earnedPoint);
 
-                        System.out.println(currentPlayer.getName() + " gagne " + pointsGagnes + " points.");
+                        System.out.println(currentPlayer.getName() + " gagne " + earnedPoint + " points.");
 
                         // Pioche d’une nouvelle tuile si possible
                         drawRandomTileForPlayer(currentPlayer);
@@ -120,9 +123,9 @@ public class Main {
             }
 
             // Vérification fin de partie : si les deux racks sont vides
-            Boolean player1Empty = player1.getRack().getTiles().isEmpty();
-            Boolean player2Empty = player2.getRack().getTiles().isEmpty();
-            if (player1Empty && player2Empty) {
+            Boolean player1RackEmpty = player1.getPlayerRack().getTilesFromPlayerRack().isEmpty();
+            Boolean player2RackEmpty = player2.getPlayerRack().getTilesFromPlayerRack().isEmpty();
+            if (player1RackEmpty && player2RackEmpty) {
                 gameOver = true;
                 System.out.println("\nFin de la partie !");
                 System.out.println("Plus de tuiles à jouer.");
@@ -149,17 +152,17 @@ public class Main {
     private static void drawRandomTileForPlayer(Player player) {
         Pool pool = player.getPool();
         if (!pool.isEmpty()) {
-            Tile nouvelleTuile = pool.drawTile();
-            if (nouvelleTuile != null) {
-                player.getRack().getTiles().add(nouvelleTuile);
-                System.out.println(player.getName() + " pioche une nouvelle tuile : " + nouvelleTuile);
+            Tile newTile = pool.drawTile();
+            if (newTile != null) {
+                player.getPlayerRack().getTilesFromPlayerRack().add(newTile);
+                System.out.println(player.getName() + " pioche une nouvelle tuile : " + newTile);
             }
         }
     }
 
     public static int calculateScore(Board board, Integer row, Integer col) {
         Integer score = 0;
-        Tile placedTile = board.getCell(row, col).getTile();
+        Tile placedTile = board.getCellPositionOnBoard(row, col).getTileFromCell();
 
         Integer[][] directions = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
 
@@ -169,7 +172,7 @@ public class Main {
 
             
 			if (adjRow >= 0 && adjRow < MAX_TABLE_SIZE && adjCol >= 0 && adjCol < MAX_TABLE_SIZE) {
-                Tile adjTile = board.getCell(adjRow, adjCol).getTile();
+                Tile adjTile = board.getCellPositionOnBoard(adjRow, adjCol).getTileFromCell();
                 if (adjTile != null) {
                     if (adjTile.getColor() == placedTile.getColor() || adjTile.getShape() == placedTile.getShape()) {
                         score++;
