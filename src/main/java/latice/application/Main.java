@@ -8,23 +8,12 @@ public class Main {
 	
     public static void main(String[] args) {
 
-        // Création des 72 tuiles
-        TileSet tileSet = new TileSet();
-        List<Tile> allTiles = tileSet.getTiles();
-        Collections.shuffle(allTiles);
+        List<Tile> allTiles = createTiles();
 
-        // Répartition équitable des 72 tuiles en deux pools (36 chacune)
-        List<Tile> tilesForPlayer1 = new ArrayList<>(allTiles.subList(0, 36));
-        List<Tile> tilesForPlayer2 = new ArrayList<>(allTiles.subList(36, 72));
-
-        // Création des pools
-        Pool pool1 = new Pool(tilesForPlayer1);
-        Pool pool2 = new Pool(tilesForPlayer2);
-
-        // Création des joueurs
-        Player player1 = new Player("Paul", pool1);
-        Player player2 = new Player("Jordan", pool2);
-
+        Player player1 = setupPlayer1Pool(allTiles);
+        
+        Player player2 = setupPlayer2Pool(allTiles);
+        
         // Plateau et arbitre
         Board board = new Board();
         Arbitre arbitre = new Arbitre(board);
@@ -78,11 +67,14 @@ public class Main {
 
                     Tile selectedTile = playerRackTiles.get(tileSelection);
                     // choix de lignes et colonnes
+                    
+                    System.out.print("Ligne (0-8) : ");
+                    Integer rowSelection = scanner.nextInt();
+                    
                     System.out.print("Colonne (0-8) : ");
                     Integer colSelection = scanner.nextInt();
 
-                    System.out.print("Ligne (0-8) : ");
-                    Integer rowSelection = scanner.nextInt();
+                    
 
                     if (rowSelection < 0 || rowSelection > 8 || colSelection < 0 || colSelection > 8) {
                         System.out.println("Coordonnées hors limites.");
@@ -147,7 +139,39 @@ public class Main {
         }
 
         scanner.close();
-    }
+    } // 
+
+
+	private static Player setupPlayer2Pool(List<Tile> allTiles) {
+		// Répartition équitable des 72 tuiles en deux pools (36 chacune)
+        List<Tile> tilesForPlayer2 = new ArrayList<>(allTiles.subList(36, 72));
+        // Création des pools
+        Pool pool2 = new Pool(tilesForPlayer2);
+        // Création du joueur
+        Player player2 = new Player("Jordan", pool2);
+		return player2;
+	}
+
+
+	private static Player setupPlayer1Pool(List<Tile> allTiles) {
+		// Répartition équitable des 72 tuiles en deux pools (36 chacune)
+        List<Tile> tilesForPlayer1 = new ArrayList<>(allTiles.subList(0, 36));
+        // Création des pools
+        Pool pool1 = new Pool(tilesForPlayer1);       
+        // Création du joueur
+        Player player1 = new Player("Paul", pool1);
+		return player1;
+	}
+
+
+	private static List<Tile> createTiles() {
+		// Création des 72 tuiles
+        TileSet tileSet = new TileSet();
+        List<Tile> allTiles = tileSet.getTiles();
+        Collections.shuffle(allTiles);
+		return allTiles;
+	}
+   
 
     private static void drawRandomTileForPlayer(Player player) {
         Pool pool = player.getPool();
